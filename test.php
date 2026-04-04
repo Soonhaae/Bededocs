@@ -63,3 +63,9 @@ class Bateau extends Véhicule {
 // des interfaces (comme un guide de ce qu'o ndoit faire = c'est une place qui est vide = va juste définir des méthodes obligatires à définir), on peut en implémenter plusieurs.
 // exemple : définir une interface Véhicule, et l'interface V2hicule va avoir "accélérer", "freiner", etc.
 // donc on va obliger Véhicule à IMPLEMENTER l'interface, donc la classe va devoir faire ces méthodes.
+
+
+
+interface IVehicule {
+    
+}
