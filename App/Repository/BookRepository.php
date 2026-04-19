@@ -7,6 +7,7 @@ use App\Entity\Book;    // le \ est séparateur de namespace
                         // on met ce dont on a besoin dans "use"
                         // donc ici on a besoin de book pour pouvoir créer une instance de book et alimenter ses propriétés avec les données de la BDD
 use App\Db\Mysql;       // on a aussi besoin de Mysql pour pouvoir faire des requêtes à la BDD (via PDO)
+use App\Tools\StringTools; // on a besoin de StringTools pour mettre la 1re lettre d'une chaîne en majuscule : pour faire le setter dynamique !!
 
 class BookRepository {
 
@@ -46,14 +47,33 @@ public function findOneById(int $id) {
                                                         // si je fais un bindValue() avant d'avoir fait $pdo->prepare(), alors $pdo est encore null (car il n'est pas encore instancié), donc ça va me faire une erreur (car je ne peux pas faire un bindValue() sur un objet null)
                                                         // du coup, l'ordre des opérations est important : d'abord je prépare la requête (pour que $pdo soit instancié), puis je fais le bindValue() (pour lier la valeur de $id au paramètre :id de la requête SQL)    
         $query->execute();    // on exécute la requête       
-        // $query->setFetchMode(\PDO::FETCH_ASSOC);    // on définit le mode de récupération des données (ici, on veut un tableau associatif)
-                                                    // logique POO reposirory+entity = je récupère un tableu , je le transforme en objet métier (entité/book)
-                                                    // et je retourne cet objet (et pas un tableau)
+        // $query->setFetchMode(\PDO::FETCH_ASSOC);     // on définit le mode de récupération des données (ici, on veut un tableau associatif)
+                                                        // logique POO reposirory+entity = je récupère un tableu , je le transforme en objet métier (entité/book)
+                                                        // et je retourne cet objet (et pas un tableau)
+        /* Version 1 :
         $book = $query->fetch(); // on récupère le résultat de la requête
-        
-        // \PDO::PARAM_INT = je vais diretcement à la source (la classe)
-        // $pdo::PARAM_INT = je passe par un objet our accéder à uen constante de classe (ça marche aussi, mais c'est moins direct que de passer par la classe elle-même)
-        
+                                                        // par défaut, fetch() c'est public function fetch (int $mode = PDO::FETCH_BOTH, etc.) donc BOTH = récupère les 2 tableaux :
+                                                        // - un tableau associatif (avec les noms des colonnes de la BDD comme clés)
+                                                        // - un tableau indexé (avec les numéros des colonnes comme clés)
+                                                        // mais nous on ne veut qu'un seul donc on va finaleent utiliser FETCH_ASSOC (pour avoir que le tableau associatif (avec les noms des colonnes de la BDD comme clés)
+        */
+
+        // donc on va finalement faire Version 2 :                                                
+                
+        $book = $query->fetch(\PDO::FETCH_ASSOC); // on récupère le résultat de la requête en précisant que c'est un tableau associatif (avec les noms des colonnes de la BDD comme clés)
+
+        /*
+            // je peux faire ici juste après ci-dessus un var_dump($book); pour vérifier que j'ai bien un tableau associatif avec les données de la BDD
+            // (ex : ['id' => 1, 'title' => 'titre test', 'description' => 'description test'])
+            
+        var_dump($book);
+        */
+
+
+        /*
+        NB : \PDO::PARAM_INT = je vais diretcement à la source (la classe)
+        $pdo::PARAM_INT = je passe par un objet our accéder à uen constante de classe (ça marche aussi, mais c'est moins direct que de passer par la classe elle-même)
+        */
         
         
         // avant de faire tout ce qu'il y a au début de cette méthode (ele début qui est en rapport avec Mysql.php), on peut pour test faire en dur :
@@ -62,32 +82,57 @@ public function findOneById(int $id) {
 
 
         $bookEntity = new Book();
+        /*
+                // quand je fais un new book, ça me crée un nouvel objet $bookEntity qui est une instance de la classe Book (c'est un objet métier qui représente un livre, avec des propriétés comme id, title, description, etc.)
+                // SOIT JE FAIS 1/ des set de chacune des propriétés :
         $bookEntity->setId($book['id']); // attention à ce point, si pas de setter pour l'id (si auto-incrémenté en BDD)
         $bookEntity->setTitle($book['title']);
         $bookEntity->setDescription($book['description']);
-        // tout ça = hydrater une entité manuellement (= on alimente les propriétés de l'entité avec les données de la BDD)
+                // tout ça = hydrater une entité manuellement (= on alimente les propriétés de l'entité avec les données de la BDD)
+        */
+        
 
-        return $bookEntity;
 
-    }
-}
+        /*
+                // SOIT JE FAIS 2/ (c'est mieux) un foreach qui va récupérer toutes les clés (il va faire les key/value )
+                // et ensuite on va appeler dynamiquement le bon setter en fonction de la clé (ex : si la clé est "title", alors on va appeler le setter setTitle, etc.)
+        */
+        
 
-/*
-autre manière de faire :
 
-foreach($book as $key => $value) {
+        foreach ($book as $key => $value) {
     // $key = 'id' / 'title' / 'description'
     // $value = 1 / 'titre test' / 'description test'
     // setter : setId / setTitle / setDescription
+            $bookEntity->{'set'.StringTools::toPascalCase($key)}($value); // appel dynamique du setter (ex : $bookEntity->setTitle('titre test'))
+                            // (pour voir l'utilité de StringTools, lire ci-dessous et/ou aller voir dans la classe StringTools)
+        }
 
+    // si je fais juste un var_dump(StringTools::toPascalCase($key)); dans le foreach,
+    // (à la place de $bookEntity->{'set'.StringTools::toPascalCase($key)}($value);)
+    // je vois bien que ça m'écrit tous les noms comme il faut, il n'y a plus qu'à rajouter "set" devant, ce que je fais avec :
+    // $bookEntity->{'set'.StringTools::toPascalCase($key)}($value);
+
+
+
+/* ce que proposait copilot ci-dessous, mais il y a la fonction dans StringTools qui remplace le ucfirst)
     $setter = 'set'.ucfirst($key); // ucfirst : met la 1ère lettre en majuscule
     if (method_exists($bookEntity, $setter)) { // vérifier que le setter existe dans la classe Book avant de l'appeler
         $bookEntity->$setter($value); // appel dynamique du setter (ex : $bookEntity->setTitle('titre test'))
     }   
 
-but : alimenter automatiquement notre livre, sans devoir faire les set de tout
+    // but : alimenter automatiquement notre livre, sans devoir faire les set de tout
+    // on récupère les données d'1 BDD, et on vient les mettre  sur notre objet, comem ça après on peut utiliser un objet dans les vues, et pas un tableau (c'est + pratique pour faire du $book->getTitle() que du $book['title'] dans les vues)
 
 */
+
+                
+        
+            return $bookEntity;
+
+            
+        }
+
 
 
 /* on pourrait aussi faire :
@@ -95,3 +140,5 @@ but : alimenter automatiquement notre livre, sans devoir faire les set de tout
     $query->execute(['id' => $id]);    // on exécute la requête en passant l'id en paramètre (pour remplacer :id dans la requête SQL)       
 
 */
+
+}

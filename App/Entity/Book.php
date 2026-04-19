@@ -17,6 +17,34 @@ class Book { // comme on va faire des getter et des setter, on ne va pas mettre 
                                         // exemple : écrire/modifier la valeur : $book->setId(5); (et je peux aussi faire $book->setId(null);)
                                         // exemple : lire la valeur   : $book->getId();
 
+    protected string $image; // on peut aussi ajouter une image à notre livre, pour ça il suffit de rajouter une propriété $image, et de faire les getter/setter correspondants (et de l'ajouter dans la BDD aussi)
+    protected int $type_id; // on peut aussi ajouter un type à notre livre, pour ça il suffit de rajouter une propriété $type, et de faire les getter/setter correspondants (et de l'ajouter dans la BDD aussi)
+    protected int $author_id; // on peut aussi ajouter un auteur à notre livre, pour ça il suffit de rajouter une propriété $author, et de faire les getter/setter correspondants (et de l'ajouter dans la BDD aussi)
+
+
+
+    /*
+si j'ai besoin de vérifier, je peux entrer des données en dur dans chaque propriété, pour tester les getter/setter
+(ex :
+protected ?int $id = null;
+protected string $title = '';
+protected string $description = '';
+protected string $image = '';
+protected int $type_id = 0;
+protected int $author_id = 0;
+)
+*/
+
+
+
+
+
+
+
+
+
+// Ci-dessous, les getter/setter de chaque propriété (id, title, description, image, type_id, author_id) :
+
     /**
      * Get the value of id
      */
@@ -39,13 +67,6 @@ class Book { // comme on va faire des getter et des setter, on ne va pas mettre 
 
         return $this;
     }
-    
-                                            
-                                            
-                                            
-                                            
-
-
     
     
     /**
@@ -80,6 +101,60 @@ class Book { // comme on va faire des getter et des setter, on ne va pas mettre 
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of image
+     */
+    public function getImage(): string
+    {
+        return $this->image;
+    }
+
+    /**
+     * Set the value of image
+     */
+    public function setImage(string $image): self
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of type_id
+     */
+    public function getTypeId(): int
+    {
+        return $this->type_id;
+    }
+
+    /**
+     * Set the value of type_id
+     */
+    public function setTypeId(int $type_id): self
+    {
+        $this->type_id = $type_id;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of author_id
+     */
+    public function getAuthorId(): int
+    {
+        return $this->author_id;
+    }
+
+    /**
+     * Set the value of author_id
+     */
+    public function setAuthorId(int $author_id): self
+    {
+        $this->author_id = $author_id;
 
         return $this;
     }

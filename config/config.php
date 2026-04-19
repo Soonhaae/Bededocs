@@ -10,4 +10,6 @@ return // permettra de faire un require de ça depuis ma class Mysql, qui va ré
     'db_password' => '',
     'db_port' => 3306,
     'db_host' => 'localhost', // ou alors mettre 127.0.0.1, c'est pareil
-];
+    'db_charset' => 'utf8mb4',
+    'db_collation' => 'utf8mb4_unicode_ci',    // c'est pour les collations, c'est pas forcément nécessaire, mais c'est mieux de le mettre
+];                                              // c'est mieux que utf8mb4_general_ci, qui est plus vieux et moins précis

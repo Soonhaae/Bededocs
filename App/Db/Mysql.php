@@ -9,6 +9,12 @@ class Mysql
     private $db_password;
     private $db_port;
     private $db_host;
+
+    private $db_charset;        // on peut aussi ajouter le charset, même si pas forcément besoin pour la connexion à la BDD
+                                // c'est + pour requêtes à la BDD (éviter problèmes d'encodage des caractères)
+    private $db_collation;      // on peut aussi ajouter la collation, même si pas forcément besoin pour la connexion à la BDD
+                                // c'est + pour requêtes à la BDD (éviter problèmes de comparaison des caractères)
+
     private $pdo = null;               // va contenir l'objet PDO, comme ça pas besoin de passer PDO en paramètre de fonction à chaque fois pour le récupérer
                                 // juste besoin de récupérer une instance de cette classe Mysql                         
                                 // c'est la variable $pdo qui va contenir l'instance de PDO
@@ -47,6 +53,13 @@ class Mysql
 
         if (isset($config['db_host'])) {
             $this->db_host = $config['db_host'];
+        }
+        if (isset($config['db_charset'])) {
+            $this->db_charset = $config['db_charset'];
+        }
+
+        if (isset($config['db_collation'])) {
+            $this->db_collation = $config['db_collation'];
         }
     }
 
@@ -104,16 +117,33 @@ class Mysql
                                                 // \PDO = passer le type de PDO
         if(is_null($this->pdo)) {   // si $pdo est déjà instancié, alors on retourne l'instance de PDO qui est stockée dans $pdo, sinon on crée une nouvelle instance de PDO et on la stocke dans $pdo pour la réutiliser ensuite
                                     // même mécanique que dessus : à ne faire qu'1x, puis réutiliser la même instance de PDO pour faire toutes les requêtes à la BDD (pour éviter d'ouvrir plusieurs connexions à la BDD, ce qui est coûteux en ressources)
-        $this->pdo = new \PDO('mysql:dbname='.$this->db_name.';host='.$this->db_host.';port='.$this->db_port, $this->db_user, $this->db_password); // on crée une nouvelle instance de PDO avec les paramètres de connexion à la BDD (récupérés dans les propriétés de la classe Mysql)
+        $this->pdo = new \PDO('mysql:dbname='.$this->db_name.';host='.$this->db_host.';port='.$this->db_port.';charset='.$this->db_charset, $this->db_user, $this->db_password); // on crée une nouvelle instance de PDO avec les paramètres de connexion à la BDD (récupérés dans les propriétés de la classe Mysql)
         }
         
+
         // on pourrait faire $this->pdo = $pdo; ici si on ne l'avait pas fait au début de ci-dessus
         // dans ce cas on aurait commencé ci-dessus par $pdo = new \PDO(etc.)
         
         // on stocke l'instance de PDO dans la propriété $pdo de la classe Mysql pour pouvoir la réutiliser ensuite
         // je stocke donc mon new PDO dans pdo, et je le retourne :
+
+
+
+
+
         return $this->pdo;
     }
+
+
+
+
+
+
+
+
+
+
+
 
     /* sinon j'aurais pu faire aussi de cette manière :    
         if ($this->pdo === null) { // si la propriété $pdo de cette classe est null, alors on va créer une nouvelle connexion à la BDD, car pas de connexion existante
@@ -128,9 +158,6 @@ class Mysql
     }
     
     */    
-
-
-
 }
 
 
