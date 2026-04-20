@@ -14,7 +14,9 @@ class Controller {
                         $pageController->route(); // ensuite, l'action sera dans le controller page (donc voir PageController.php -> méthode route, voir quelle sera l'action)
                         break;
                     case 'book':                // idem dessus, si case book, alors charger contrôleur book
-                        var_dump('On charge BookController');
+                        // var_dump('On charge BookController'); // faier le var_dump pour vérifier que ça fonctionne avant de faire les 
+                        $bookController = new BookController(); // si case book, alors je faire faire un new BookController (je suis au même niveau que App\Controller)
+                        $bookController->route(); // donc ici BookController appelle le router
                         break;
                     default:
                         // on génère une nouvelle exception avec la classe Exception, dans laquelle on va mettre notre message (), 
@@ -49,7 +51,7 @@ class Controller {
 
         $filePath = _ROOTPATH_.'/templates/'.$path.'.php'; // je rends ma méthode dynamique,
                                                             // je vérifie que le template existe bien :
-        //systèe de gestion d'erreur :
+        //système de gestion d'erreur :
         try {
             if (!file_exists($filePath)) {                               // s'il n'y a pas le fichier (= que ça a retourné false), alors générer erreur
                 throw new \Exception("Fichier non trouvé : ".$filePath); // généreration de l'exception/de l'erreur avec le nom du fichier non trouvé (comme ça on trouvera plus facilement quel code ne fonctionne pas)

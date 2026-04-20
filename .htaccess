@@ -1,0 +1,20 @@
+RewriteEngine On
+
+RewriteRule ^a-propos/$ /index.php?controller=page&action=about
+
+
+// on peut aussi faire des RegEx qui vont récupérer des paramètres et les passer en paramètre après "about" par exemple
+
+
+// dans le thacess, plein de configurations,  beaucopu de récritures d'url
+
+// avec un virtualhost (bededocs.local), pas de problème avec les adresses d'assets dans la redirection
+
+
+
+
+// dans le htaccess aussi la sécurité
+
+
+
+
